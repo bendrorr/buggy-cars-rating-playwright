@@ -30,7 +30,9 @@ npx playwright test tests/ui/LoginTests.spec.ts
 npx playwright show-report
 
 ├── api/                 # API Clients (e.g., AuthApi, ProfileApi)
-├── constants/           # Constant values (e.g., BASE_URL_API, selectors)
+├── config/              # Configuration and constants (e.g., BASE_URL_API, headers)
+├── model/               # Data models and test data (e.g., UserCredentials, generated input)
 ├── pages/               # UI Page Objects (e.g., RegisterPage, ProfilePage)
 ├── tests/               # UI, API, and Hybrid tests
 ├── util/                # Utility functions (e.g., isOnPage, readVisibleText)
+
