@@ -1,4 +1,4 @@
-import { expect, Locator, test } from '@playwright/test';
+import { APIResponse, expect, Locator, test } from '@playwright/test';
 import { RegisterPage } from '../../pages/RegisterPage.ts';
 import { AuthApi } from '../../api/AuthApi.ts';
 import { ProfileApi } from '../../api/ProfileApi.ts';
@@ -117,7 +117,7 @@ test.describe('Hybrid UI + API tests', () => {
       userCredentials.username,
       userCredentials.password,
     );
-    await headerComponent.isLoggedIn();
+    expect(await headerComponent.isLoggedIn()).toBeTruthy();
 
     let popularModelPage: PopularModelPage = new PopularModelPage(page);
 
@@ -142,5 +142,36 @@ test.describe('Hybrid UI + API tests', () => {
     expect(await readVisibleText(await successMessageLocator)).toContain(
       'Thank you for your vote!',
     );
+  });
+
+  test('should verify votes consistency between API and UI for popular model', async ({
+    page,
+    request,
+  }) => {
+    const mainPage: MainPage = new MainPage(page);
+    await mainPage.goToMainPage();
+    const headerComponent: HeaderComponent = await mainPage.header();
+
+    await headerComponent.login(VALID_USER.username, VALID_USER.password);
+    expect(await headerComponent.isLoggedIn()).toBeTruthy();
+
+    const authApi: AuthApi = new AuthApi(request);
+    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const modelApi = new PopularModelApi(request, token);
+
+    const allModelsResponse: APIResponse = await modelApi.getAllModels();
+    expect(allModelsResponse.ok()).toBeTruthy();
+
+    const { models }: any = await allModelsResponse.json();
+    expect(models.length).toBeGreaterThan(0);
+
+    await mainPage.goToPopularModelPage();
+    const popularModelPage: PopularModelPage = new PopularModelPage(page);
+    expect(await popularModelPage.isLoaded()).toBeTruthy();
+
+    const totalVoteFromAPI: string = models[0].votes;
+    const totalVoteFromUI: number = await popularModelPage.calculateTotalVote();
+
+    expect(totalVoteFromAPI).toEqual(totalVoteFromUI);
   });
 });

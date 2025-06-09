@@ -8,6 +8,7 @@ export class PopularModelPage {
   private readonly commentInput: Locator;
   private readonly voteButton: Locator;
   private readonly successMessage: Locator;
+  private readonly totalVoteText: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -15,6 +16,7 @@ export class PopularModelPage {
     this.commentInput = page.locator('#comment');
     this.voteButton = page.locator('button', { hasText: 'Vote!' });
     this.successMessage = page.getByText('Thank you for your vote!');
+    this.totalVoteText = page.locator('h4:has-text("Votes:") strong');
   }
 
   async commentAndVoteByModelId(modelId: string): Promise<void> {
@@ -33,6 +35,11 @@ export class PopularModelPage {
 
   async getVoteButton(): Promise<Locator> {
     return this.voteButton;
+  }
+
+  async calculateTotalVote(): Promise<number> {
+    let voteText: string | null = await this.totalVoteText.textContent();
+    return Number(voteText?.trim());
   }
 
   async isLoaded(): Promise<boolean> {
