@@ -1,36 +1,45 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { HeaderComponent } from './component/HeaderComponent.ts';
+import { isOnPage } from '../util/CommonAction.ts';
 
-export class LoginPage {
+export class MainPage {
   private readonly page: Page;
-  private readonly usernameInput: Locator;
-  private readonly passwordInput: Locator;
-  private readonly loginButton: Locator;
-  private readonly logoutLink: Locator;
+  private readonly headerComponent: HeaderComponent;
+  private readonly popularMakeLink: Locator;
+  private readonly popularModelLink: Locator;
+  private readonly overallRatingLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.usernameInput = page.getByRole('textbox', { name: 'Login' });
-    this.passwordInput = page.locator('input[name="password"]');
-    this.loginButton = page.getByRole('button', { name: 'Login' });
-    this.logoutLink = page.getByRole('link', { name: 'Logout' });
+    this.headerComponent = new HeaderComponent(page);
+    this.popularMakeLink = page.locator('[href="/make/ckl2phsabijs71623vk0"]');
+    this.popularModelLink = page.locator(
+      '[href="/model/ckl2phsabijs71623vk0|ckl2phsabijs71623vqg"]',
+    );
+    this.overallRatingLink = page.locator('[href="/overall"]');
   }
 
-  async navigate() {
-    await this.page.goto('/login');
+  async goToMainPage(): Promise<void> {
+    await this.page.goto('/');
   }
 
-  async login(username: string, password: string) {
-    await this.usernameInput.fill(username);
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
+  async goToPopularMakePage(): Promise<void> {
+    await this.popularMakeLink.click();
   }
 
-  async isLoggedIn(): Promise<boolean> {
-    await this.logoutLink.waitFor({ state: 'visible', timeout: 5000 });
-    return await this.logoutLink.isVisible();
+  async goToPopularModelPage(): Promise<void> {
+    await this.popularModelLink.click();
   }
 
-  async isLoaded() {
-    await expect(this.page).toHaveTitle('Buggy Cars Rating');
+  async goToOverallRatingPage(): Promise<void> {
+    await this.overallRatingLink.click();
+  }
+
+  async header(): Promise<HeaderComponent> {
+    return this.headerComponent;
+  }
+
+  async isLoaded(): Promise<boolean> {
+    return isOnPage(this.popularMakeLink);
   }
 }

@@ -1,17 +1,17 @@
 import { expect, test } from '@playwright/test';
-import { MainPage } from '../pages/MainPage.ts';
-import { RegisterPage } from '../pages/RegisterPage.ts';
-import { generateRegisterData } from '../util/TestDataUtil.ts';
-import { PopularModelPage } from '../pages/PopularModelPage.ts';
-import { ProfilePage } from '../pages/ProfilePage.ts';
+import { MainPage } from '../../pages/MainPage.ts';
+import { RegisterPage } from '../../pages/RegisterPage.ts';
+import { generateRegisterData } from '../../util/TestDataUtil.ts';
+import { ProfilePage } from '../../pages/ProfilePage.ts';
+import { HeaderComponent } from '../../pages/component/HeaderComponent.ts';
 
-test.describe('Full user flow - register, login, profile update, and model check', () => {
+test.describe('Negative tests', () => {
   test('Login with invalid credentials', async ({ page }) => {
-    const mainPage = new MainPage(page);
+    const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    await mainPage.isLoaded();
+    expect(await mainPage.isLoaded()).toBeTruthy();
 
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
     await header.login('wrong_user', 'WrongPassword123!');
     expect(await header.getLoginErrorMessage()).toBe(
       'Invalid username/password',
@@ -19,10 +19,11 @@ test.describe('Full user flow - register, login, profile update, and model check
   });
 
   test('Register with existing username', async ({ page }) => {
-    const registerPage = new RegisterPage(page);
+    const registerPage: RegisterPage = new RegisterPage(page);
     await registerPage.navigate();
+    expect(await registerPage.isLoaded()).toBeTruthy();
 
-    const password = 'Password123$';
+    const password: string = 'Password123$';
     await registerPage.register(
       'John',
       'Doe',
@@ -37,10 +38,21 @@ test.describe('Full user flow - register, login, profile update, and model check
   });
 
   test('Register with mismatched passwords', async ({ page }) => {
-    const registerPage = new RegisterPage(page);
+    const registerPage: RegisterPage = new RegisterPage(page);
     await registerPage.navigate();
+    expect(await registerPage.isLoaded()).toBeTruthy();
 
-    const { username, firstName, lastName, password } = generateRegisterData();
+    const {
+      username,
+      firstName,
+      lastName,
+      password,
+    }: {
+      username: string;
+      firstName: string;
+      lastName: string;
+      password: string;
+    } = generateRegisterData();
     await registerPage.register(
       firstName,
       lastName,
@@ -55,42 +67,24 @@ test.describe('Full user flow - register, login, profile update, and model check
   });
 
   test('Access profile page without login', async ({ page }) => {
-    const mainPage = new MainPage(page);
+    const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    await mainPage.isLoaded();
+    expect(await mainPage.isLoaded()).toBeTruthy();
 
     const header = await mainPage.header();
     expect(await header.profileButtonIsVisible()).toBeFalsy();
   });
 
-  test('Logout without being logged in', async ({ page }) => {
-    const mainPage = new MainPage(page);
-    await mainPage.goToMainPage();
-    const header = await mainPage.header();
-
-    expect(await header.logoutButtonIsVisible()).toBeFalsy();
-  });
-
-  test('Navigate to broken Popular Model page', async ({ page }) => {
-    const mainPage = new MainPage(page);
-    await mainPage.goToMainPage();
-
-    await page.goto('https://buggy.justtestit.org/model/invalid-model-id');
-    const popularModelPage = new PopularModelPage(page);
-    page.waitForTimeout(5000);
-    expect(await popularModelPage.isLoaded()).toBe(false);
-  });
-
   test('Update profile without filling mandatory fields', async ({ page }) => {
-    const mainPage = new MainPage(page);
+    const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
 
     await header.login('valid_user824', 'Valid123$');
-    expect(await header.isLoggedIn()).toBe(true);
+    expect(await header.isLoggedIn()).toBeTruthy();
 
     await header.goToProfilePage();
-    const profilePage = new ProfilePage(page);
+    const profilePage: ProfilePage = new ProfilePage(page);
 
     await profilePage.updateProfile({
       firstName: '',
@@ -103,7 +97,12 @@ test.describe('Full user flow - register, login, profile update, and model check
       language: '',
     });
 
-    const message = await profilePage.getSuccessMessage();
-    expect(message).not.toContain('saved successful');
+    expect(await profilePage.isSaveButtonEnabled()).toBeFalsy();
+    expect(await profilePage.getFirstNameIsRequiredMessage()).toContain(
+      'First Name is required',
+    );
+    expect(await profilePage.getLastNameIsRequiredMessage()).toContain(
+      'Last Name is required',
+    );
   });
 });

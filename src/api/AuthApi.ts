@@ -1,17 +1,12 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
+import { BASE_URL_API } from '../constants/BuggyCarsConstants.ts';
 
-export class LoginApi {
-  private readonly apiRequestContext: APIRequestContext;
-  private readonly baseUrl: string =
-    'https://k51qryqov3.execute-api.ap-southeast-2.amazonaws.com';
+export class AuthApi {
+  constructor(private apiRequestContext: APIRequestContext) {}
 
-  constructor(apiRequestContext: APIRequestContext) {
-    this.apiRequestContext = apiRequestContext;
-  }
-
-  async getToken(username: string, password: string): Promise<string> {
+  async login(username: string, password: string): Promise<string> {
     const response: APIResponse = await this.apiRequestContext.post(
-      this.baseUrl + '/prod/oauth/token',
+      BASE_URL_API + '/prod/oauth/token',
       {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',

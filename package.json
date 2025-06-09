@@ -9,8 +9,14 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.30",
     "prettier": "^3.3.1",
+    "typescript": "^5.2.2",
     "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "generate-password": "^1.7.1"
   }
 }
