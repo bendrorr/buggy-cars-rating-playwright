@@ -17,35 +17,49 @@ test.describe('Hybrid UI + API tests', () => {
     page,
     request,
   }) => {
-    const username: string = `user_${Date.now()}`;
-    const password: string = 'TestPass123!';
-
+    const userCredentials = generateRegisterData();
     const registerPage: RegisterPage = new RegisterPage(page);
     await registerPage.navigate();
-    await registerPage.register('John', 'Doe', username, password, password);
+
+    await registerPage.register(
+      userCredentials.firstName,
+      userCredentials.lastName,
+      userCredentials.username,
+      userCredentials.password,
+      userCredentials.confirmPassword,
+    );
 
     const success: string | null = await registerPage.getSuccessMessage();
     expect(success).toContain('Registration is successful');
 
     const authApi: AuthApi = new AuthApi(request);
-    const token: string = await authApi.login(username, password);
+    const token: string = await authApi.login(
+      userCredentials.username,
+      userCredentials.password,
+    );
     const profileApi: ProfileApi = new ProfileApi(request, token);
     const profile = await profileApi.getProfile();
 
-    expect(profile.firstName).toBe('John');
-    expect(profile.lastName).toBe('Doe');
-    expect(profile.username).toBe(username);
+    expect(profile.firstName).toBe(userCredentials.firstName);
+    expect(profile.lastName).toBe(userCredentials.lastName);
+    expect(profile.username).toBe(userCredentials.username);
   });
 
-  test('Login via API and update profile via UI', async ({ page, request }) => {
+  test('Login and update profile via UI, then validate via API', async ({
+    page,
+    request,
+  }) => {
     const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
+    expect(await mainPage.isLoaded()).toBeTruthy();
+
     const header: HeaderComponent = await mainPage.header();
     await header.login(VALID_USER.username, VALID_USER.password);
     expect(await header.isLoggedIn()).toBeTruthy();
 
     await header.goToProfilePage();
     const profilePage = new ProfilePage(page);
+
     await profilePage.updateProfile({
       firstName: 'UpdatedName',
       lastName: 'UpdatedLast',
@@ -61,12 +75,15 @@ test.describe('Hybrid UI + API tests', () => {
     expect(message).toContain('The profile has been saved');
 
     const authApi: AuthApi = new AuthApi(request);
+
     const token: string = await authApi.login(
       VALID_USER.username,
       VALID_USER.password,
     );
+
     const profileApi: ProfileApi = new ProfileApi(request, token);
     const profile: any = await profileApi.getProfile();
+
     expect(profile.firstName).toBe('UpdatedName');
     expect(profile.lastName).toBe('UpdatedLast');
   });
