@@ -116,7 +116,7 @@ test.describe('Hybrid UI + API tests', () => {
 
     const { models } = await allModelsResponse.json();
     expect(models.length).toBeGreaterThan(0);
-    let modelId = models[0].id;
+    let modelId: string = models[0].id;
 
     await popularModelPage.commentAndVoteByModelId(modelId);
     let successMessageLocator: Promise<Locator> =
