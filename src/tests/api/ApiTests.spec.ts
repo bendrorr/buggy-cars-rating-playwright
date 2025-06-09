@@ -1,6 +1,6 @@
 import { APIResponse, expect, test } from '@playwright/test';
 import { AuthApi } from '../../api/AuthApi.ts';
-import { VALID_USER } from '../../constants/BuggyCarsConstants.ts';
+import { VALID_USER } from '../../config/BuggyCarsConstants.ts';
 import { ProfileApi } from '../../api/ProfileApi.ts';
 import { PopularMakeApi } from '../../api/PopularMakeApi.ts';
 import { PopularModelApi } from '../../api/PopularModelApi.ts';
@@ -110,4 +110,5 @@ test.describe('API tests', () => {
       expect(Array.isArray(modelData.comments)).toBeTruthy();
     }
   });
+
 });

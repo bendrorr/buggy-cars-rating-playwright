@@ -1,11 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, Locator, test } from '@playwright/test';
 import { RegisterPage } from '../../pages/RegisterPage.ts';
 import { AuthApi } from '../../api/AuthApi.ts';
 import { ProfileApi } from '../../api/ProfileApi.ts';
 import { ProfilePage } from '../../pages/ProfilePage.ts';
 import { MainPage } from '../../pages/MainPage.ts';
-import { VALID_USER } from '../../constants/BuggyCarsConstants.ts';
+import { VALID_USER } from '../../config/BuggyCarsConstants.ts';
 import { HeaderComponent } from '../../pages/component/HeaderComponent.ts';
+import { PopularModelApi } from '../../api/PopularModelApi.ts';
+import { PopularModelPage } from '../../pages/PopularModelPage.ts';
+import { generateRegisterData } from '../../util/TestDataUtil.ts';
+import { UserCredentials } from '../../model/UserCredentials.ts';
+import { readVisibleText } from '../../util/CommonAction.ts';
 
 test.describe('Hybrid UI + API tests', () => {
   test('Register user via UI, then validate profile via API', async ({
@@ -64,5 +69,61 @@ test.describe('Hybrid UI + API tests', () => {
     const profile: any = await profileApi.getProfile();
     expect(profile.firstName).toBe('UpdatedName');
     expect(profile.lastName).toBe('UpdatedLast');
+  });
+
+  test('should register, login, and vote for a car model successfully', async ({
+    page,
+    request,
+  }) => {
+    let registerPage = new RegisterPage(page);
+    await registerPage.navigate();
+    await registerPage.isLoaded();
+
+    let userCredentials: UserCredentials = generateRegisterData();
+
+    await registerPage.register(
+      userCredentials.firstName,
+      userCredentials.lastName,
+      userCredentials.username,
+      userCredentials.password,
+      userCredentials.confirmPassword,
+    );
+    expect(await registerPage.getSuccessMessage()).toContain(
+      'Registration is successful',
+    );
+
+    let mainPage = new MainPage(page);
+    await mainPage.goToMainPage();
+    let headerComponent = await mainPage.header();
+
+    await headerComponent.login(
+      userCredentials.username,
+      userCredentials.password,
+    );
+    await headerComponent.isLoggedIn();
+
+    let popularModelPage: PopularModelPage = new PopularModelPage(page);
+
+    const authApi = new AuthApi(request);
+    const token = await authApi.login(
+      userCredentials.username,
+      userCredentials.password,
+    );
+
+    const modelApi = new PopularModelApi(request, token);
+    const allModelsResponse = await modelApi.getAllModels();
+    expect(allModelsResponse.ok()).toBeTruthy();
+
+    const { models } = await allModelsResponse.json();
+    expect(models.length).toBeGreaterThan(0);
+    let modelId = models[0].id;
+
+    await popularModelPage.commentAndVoteByModelId(modelId);
+    let successMessageLocator: Promise<Locator> =
+      popularModelPage.getSuccessMessageLocator();
+
+    expect(await readVisibleText(await successMessageLocator)).toContain(
+      'Thank you for your vote!',
+    );
   });
 });

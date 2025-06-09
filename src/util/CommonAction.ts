@@ -3,7 +3,7 @@ import { Locator } from '@playwright/test';
 export async function readVisibleText(
   locator: Locator,
 ): Promise<string | null> {
-  await locator.waitFor({ state: 'visible', timeout: 5000 });
+  await locator.waitFor({ state: 'visible', timeout: 8000 });
   return (await locator.isVisible()) ? await locator.textContent() : null;
 }
 

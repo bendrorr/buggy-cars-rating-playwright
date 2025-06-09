@@ -1,5 +1,5 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
-import { BASE_URL_API } from '../constants/BuggyCarsConstants.ts';
+import { BASE_URL_API } from '../config/BuggyCarsConstants.ts';
 
 export class AuthApi {
   constructor(private apiRequestContext: APIRequestContext) {}

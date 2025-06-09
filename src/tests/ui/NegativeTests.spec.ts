@@ -1,9 +1,14 @@
-import { expect, test } from '@playwright/test';
+import { APIResponse, expect, Locator, test } from '@playwright/test';
 import { MainPage } from '../../pages/MainPage.ts';
 import { RegisterPage } from '../../pages/RegisterPage.ts';
 import { generateRegisterData } from '../../util/TestDataUtil.ts';
 import { ProfilePage } from '../../pages/ProfilePage.ts';
 import { HeaderComponent } from '../../pages/component/HeaderComponent.ts';
+import { UserCredentials } from '../../model/UserCredentials.ts';
+import { AuthApi } from '../../api/AuthApi.ts';
+import { PopularModelApi } from '../../api/PopularModelApi.ts';
+import { PopularModelPage } from '../../pages/PopularModelPage.ts';
+import { readVisibleText } from '../../util/CommonAction.ts';
 
 test.describe('Negative tests', () => {
   test('Login with invalid credentials', async ({ page }) => {
@@ -42,23 +47,14 @@ test.describe('Negative tests', () => {
     await registerPage.navigate();
     expect(await registerPage.isLoaded()).toBeTruthy();
 
-    const {
-      username,
-      firstName,
-      lastName,
-      password,
-    }: {
-      username: string;
-      firstName: string;
-      lastName: string;
-      password: string;
-    } = generateRegisterData();
+    let userCredentials: UserCredentials = generateRegisterData();
+
     await registerPage.register(
-      firstName,
-      lastName,
-      username,
-      password,
-      'WrongConfirm123$',
+      userCredentials.firstName,
+      userCredentials.lastName,
+      userCredentials.username,
+      userCredentials.password,
+      userCredentials.password + '$',
     );
 
     expect(await registerPage.getPasswordDoNotMatchMessage()).toContain(
@@ -104,5 +100,60 @@ test.describe('Negative tests', () => {
     expect(await profilePage.getLastNameIsRequiredMessage()).toContain(
       'Last Name is required',
     );
+  });
+
+  test('Cannot vote twice for the same model', async ({ page, request }) => {
+    let registerPage = new RegisterPage(page);
+    await registerPage.navigate();
+    await registerPage.isLoaded();
+
+    let userCredentials: UserCredentials = generateRegisterData();
+
+    await registerPage.register(
+      userCredentials.firstName,
+      userCredentials.lastName,
+      userCredentials.username,
+      userCredentials.password,
+      userCredentials.confirmPassword,
+    );
+    expect(await registerPage.getSuccessMessage()).toContain(
+      'Registration is successful',
+    );
+
+    let mainPage = new MainPage(page);
+    await mainPage.goToMainPage();
+    let headerComponent: HeaderComponent = await mainPage.header();
+
+    await headerComponent.login(
+      userCredentials.username,
+      userCredentials.password,
+    );
+    await headerComponent.isLoggedIn();
+
+    let popularModelPage: PopularModelPage = new PopularModelPage(page);
+
+    const authApi = new AuthApi(request);
+    const token = await authApi.login(
+      userCredentials.username,
+      userCredentials.password,
+    );
+
+    const modelApi: PopularModelApi = new PopularModelApi(request, token);
+    const allModelsResponse: APIResponse = await modelApi.getAllModels();
+    expect(allModelsResponse.ok()).toBeTruthy();
+
+    const { models } = await allModelsResponse.json();
+    expect(models.length).toBeGreaterThan(0);
+    let modelId = models[0].id;
+
+    await popularModelPage.commentAndVoteByModelId(modelId);
+    let successMessageLocator: Promise<Locator> =
+      popularModelPage.getSuccessMessageLocator();
+
+    expect(await readVisibleText(await successMessageLocator)).toContain(
+      'Thank you for your vote!',
+    );
+
+    await expect(await popularModelPage.getVoteButton()).toBeHidden();
   });
 });

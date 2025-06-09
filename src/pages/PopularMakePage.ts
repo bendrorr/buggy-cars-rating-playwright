@@ -43,7 +43,7 @@ export class PopularMakePage {
       .nth(rowIndex)
       .locator('p.comment')
       .allTextContents();
-    return raw.map((c) => c.trim()).filter((c) => c.length > 0);
+    return raw.map((c: string) => c.trim()).filter((c: string) => c.length > 0);
   }
 
   async isLoaded(): Promise<boolean> {

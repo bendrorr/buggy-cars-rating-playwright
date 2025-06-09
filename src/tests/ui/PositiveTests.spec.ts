@@ -5,7 +5,7 @@ import { generateRegisterData } from '../../util/TestDataUtil.ts';
 import { ProfilePage } from '../../pages/ProfilePage.ts';
 import { PopularMakePage } from '../../pages/PopularMakePage.ts';
 import { PopularModelPage } from '../../pages/PopularModelPage.ts';
-import { VALID_USER } from '../../constants/BuggyCarsConstants.ts';
+import { VALID_USER } from '../../config/BuggyCarsConstants.ts';
 import { OverallRatingPage } from '../../pages/OverallRatingPage.ts';
 import { HeaderComponent } from '../../pages/component/HeaderComponent.ts';
 
@@ -26,23 +26,14 @@ test.describe('Full user flow - register, login, profile update, and model check
     await registerPage.navigate();
     expect(await registerPage.isLoaded()).toBeTruthy();
 
-    const {
-      username,
-      firstName,
-      lastName,
-      password,
-    }: {
-      username: string;
-      firstName: string;
-      lastName: string;
-      password: string;
-    } = generateRegisterData();
+    let userCredentials = generateRegisterData();
+
     await registerPage.register(
-      firstName,
-      lastName,
-      username,
-      password,
-      password,
+      userCredentials.firstName,
+      userCredentials.lastName,
+      userCredentials.username,
+      userCredentials.password,
+      userCredentials.confirmPassword,
     );
 
     expect(await registerPage.getSuccessMessage()).toContain(
