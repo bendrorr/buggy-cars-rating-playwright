@@ -25,7 +25,7 @@ export class AuthApi {
       );
     }
 
-    const body = await response.json();
+    const body: any = await response.json();
     return body.access_token;
   }
 }
