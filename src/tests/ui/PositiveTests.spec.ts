@@ -8,6 +8,7 @@ import { PopularModelPage } from '../../pages/PopularModelPage.ts';
 import { VALID_USER } from '../../config/BuggyCarsConstants.ts';
 import { OverallRatingPage } from '../../pages/OverallRatingPage.ts';
 import { HeaderComponent } from '../../pages/component/HeaderComponent.ts';
+import { UserCredentials } from '../../model/UserCredentials.ts';
 
 test.describe('Full user flow - register, login, profile update, and model check', () => {
   test('Login with valid credentials', async ({ page }) => {
@@ -15,7 +16,7 @@ test.describe('Full user flow - register, login, profile update, and model check
     await mainPage.goToMainPage();
     expect(await mainPage.isLoaded()).toBeTruthy();
 
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
     await header.login(VALID_USER.username, VALID_USER.password);
 
     expect(await header.isLoggedIn()).toBeTruthy();
@@ -26,7 +27,7 @@ test.describe('Full user flow - register, login, profile update, and model check
     await registerPage.navigate();
     expect(await registerPage.isLoaded()).toBeTruthy();
 
-    let userCredentials = generateRegisterData();
+    let userCredentials: UserCredentials = generateRegisterData();
 
     await registerPage.register(
       userCredentials.firstName,
@@ -65,7 +66,7 @@ test.describe('Full user flow - register, login, profile update, and model check
     await mainPage.goToMainPage();
     expect(await mainPage.isLoaded()).toBeTruthy();
 
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
     await header.login(VALID_USER.username, VALID_USER.password);
     expect(await header.isLoggedIn()).toBeTruthy();
 
@@ -76,7 +77,7 @@ test.describe('Full user flow - register, login, profile update, and model check
   test('Logout after login', async ({ page }) => {
     const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
 
     await header.login(VALID_USER.username, VALID_USER.password);
     expect(await header.isLoggedIn()).toBeTruthy();
@@ -100,7 +101,7 @@ test.describe('Full user flow - register, login, profile update, and model check
   test('Navigate to register page from header', async ({ page }) => {
     const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
 
     await header.goToRegisterPage();
     await expect(page).toHaveURL(/.*register/);
@@ -109,13 +110,13 @@ test.describe('Full user flow - register, login, profile update, and model check
   test('Update user profile information', async ({ page }) => {
     const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
 
     await header.login(VALID_USER.username, VALID_USER.password);
     expect(await header.isLoggedIn()).toBeTruthy();
 
     await header.goToProfilePage();
-    const profilePage = new ProfilePage(page);
+    const profilePage: ProfilePage = new ProfilePage(page);
     expect(await profilePage.isLoaded()).toBeTruthy();
 
     await profilePage.updateProfile({
@@ -138,14 +139,14 @@ test.describe('Full user flow - register, login, profile update, and model check
     const mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
     await mainPage.goToPopularMakePage();
-    const popularMakePage = new PopularMakePage(page);
+    const popularMakePage: PopularMakePage = new PopularMakePage(page);
 
     expect(await popularMakePage.isLoaded()).toBeTruthy();
 
-    const rowCount = await popularMakePage.getRowCount();
+    const rowCount: number = await popularMakePage.getRowCount();
     expect(rowCount).toBeGreaterThan(0);
 
-    for (let i = 0; i < rowCount; i++) {
+    for (let i: number = 0; i < rowCount; i++) {
       const model = await popularMakePage.getModel(i);
       const rank = await popularMakePage.getRank(i);
       const votes = await popularMakePage.getVotes(i);

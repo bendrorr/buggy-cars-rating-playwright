@@ -7,19 +7,25 @@ import { PopularModelApi } from '../../api/PopularModelApi.ts';
 
 test.describe('API tests', () => {
   test('Login returns valid token', async ({ request }) => {
-    const authApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const authApi: AuthApi = new AuthApi(request);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
     console.log(token);
 
     expect(token).toBeTruthy();
   });
 
   test('Fetch user profile using token', async ({ request }) => {
-    const authApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const authApi: AuthApi = new AuthApi(request);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
 
-    const profileApi = new ProfileApi(request, token);
-    const profile = await profileApi.getProfile();
+    const profileApi: ProfileApi = new ProfileApi(request, token);
+    const profile: any = await profileApi.getProfile();
     console.log(profile);
 
     expect(profile).toHaveProperty('username');
@@ -33,13 +39,16 @@ test.describe('API tests', () => {
   });
 
   test('Update profile', async ({ request }) => {
-    const authApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const authApi: AuthApi = new AuthApi(request);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
     console.log(token);
 
-    const profileApi = new ProfileApi(request, token);
+    const profileApi: ProfileApi = new ProfileApi(request, token);
 
-    const response = await profileApi.updateProfile({
+    const response: APIResponse = await profileApi.updateProfile({
       username: VALID_USER.username,
       firstName: 'firstName',
       lastName: 'lastName',
@@ -58,37 +67,51 @@ test.describe('API tests', () => {
   });
 
   test('Get models by make', async ({ request }) => {
-    const authApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const authApi: AuthApi = new AuthApi(request);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
 
-    const makeApi = new PopularMakeApi(request, token);
-    const response = await makeApi.getPopularMakes('ckl2phsabijs71623vk0');
+    const makeApi: PopularMakeApi = new PopularMakeApi(request, token);
+    const response: APIResponse = await makeApi.getPopularMakes(
+      'ckl2phsabijs71623vk0',
+    );
 
     expect(response.ok()).toBeTruthy();
 
-    const data = await response.json();
+    const data: any = await response.json();
     console.log(data);
   });
 
   test('Get all models', async ({ request }) => {
-    const authApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const authApi: AuthApi = new AuthApi(request);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
 
-    const popularModelApi = new PopularModelApi(request, token);
-    const response = await popularModelApi.getAllModels();
+    const popularModelApi: PopularModelApi = new PopularModelApi(
+      request,
+      token,
+    );
+    const response: APIResponse = await popularModelApi.getAllModels();
 
     expect(response.ok()).toBeTruthy();
 
-    const data = await response.json();
+    const data: any = await response.json();
     console.log(data);
   });
 
   test('Get model by ID for all models', async ({ request }) => {
     const authApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
 
     const modelApi = new PopularModelApi(request, token);
-    const allModelsResponse = await modelApi.getAllModels();
+    const allModelsResponse: APIResponse = await modelApi.getAllModels();
     expect(allModelsResponse.ok()).toBeTruthy();
 
     const { models } = await allModelsResponse.json();
@@ -110,5 +133,4 @@ test.describe('API tests', () => {
       expect(Array.isArray(modelData.comments)).toBeTruthy();
     }
   });
-
 });

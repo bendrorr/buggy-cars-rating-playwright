@@ -67,7 +67,7 @@ test.describe('Negative tests', () => {
     await mainPage.goToMainPage();
     expect(await mainPage.isLoaded()).toBeTruthy();
 
-    const header = await mainPage.header();
+    const header: HeaderComponent = await mainPage.header();
     expect(await header.profileButtonIsVisible()).toBeFalsy();
   });
 
@@ -103,7 +103,7 @@ test.describe('Negative tests', () => {
   });
 
   test('Cannot vote twice for the same model', async ({ page, request }) => {
-    let registerPage = new RegisterPage(page);
+    let registerPage: RegisterPage = new RegisterPage(page);
     await registerPage.navigate();
     await registerPage.isLoaded();
 
@@ -120,7 +120,7 @@ test.describe('Negative tests', () => {
       'Registration is successful',
     );
 
-    let mainPage = new MainPage(page);
+    let mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
     let headerComponent: HeaderComponent = await mainPage.header();
 
@@ -130,9 +130,9 @@ test.describe('Negative tests', () => {
     );
     expect(await headerComponent.isLoggedIn()).toBeTruthy();
 
-    const authApi = new AuthApi(request);
+    const authApi: AuthApi = new AuthApi(request);
 
-    const token = await authApi.login(
+    const token: string = await authApi.login(
       userCredentials.username,
       userCredentials.password,
     );

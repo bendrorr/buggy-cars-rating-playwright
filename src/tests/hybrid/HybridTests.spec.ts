@@ -17,7 +17,7 @@ test.describe('Hybrid UI + API tests', () => {
     page,
     request,
   }) => {
-    const userCredentials = generateRegisterData();
+    const userCredentials: UserCredentials = generateRegisterData();
     const registerPage: RegisterPage = new RegisterPage(page);
     await registerPage.navigate();
 
@@ -38,7 +38,7 @@ test.describe('Hybrid UI + API tests', () => {
       userCredentials.password,
     );
     const profileApi: ProfileApi = new ProfileApi(request, token);
-    const profile = await profileApi.getProfile();
+    const profile: any = await profileApi.getProfile();
 
     expect(profile.firstName).toBe(userCredentials.firstName);
     expect(profile.lastName).toBe(userCredentials.lastName);
@@ -92,7 +92,7 @@ test.describe('Hybrid UI + API tests', () => {
     page,
     request,
   }) => {
-    let registerPage = new RegisterPage(page);
+    let registerPage: RegisterPage = new RegisterPage(page);
     await registerPage.navigate();
     await registerPage.isLoaded();
 
@@ -109,9 +109,9 @@ test.describe('Hybrid UI + API tests', () => {
       'Registration is successful',
     );
 
-    let mainPage = new MainPage(page);
+    let mainPage: MainPage = new MainPage(page);
     await mainPage.goToMainPage();
-    let headerComponent = await mainPage.header();
+    let headerComponent: HeaderComponent = await mainPage.header();
 
     await headerComponent.login(
       userCredentials.username,
@@ -121,14 +121,14 @@ test.describe('Hybrid UI + API tests', () => {
 
     let popularModelPage: PopularModelPage = new PopularModelPage(page);
 
-    const authApi = new AuthApi(request);
-    const token = await authApi.login(
+    const authApi: AuthApi = new AuthApi(request);
+    const token: string = await authApi.login(
       userCredentials.username,
       userCredentials.password,
     );
 
-    const modelApi = new PopularModelApi(request, token);
-    const allModelsResponse = await modelApi.getAllModels();
+    const modelApi: PopularModelApi = new PopularModelApi(request, token);
+    const allModelsResponse: APIResponse = await modelApi.getAllModels();
     expect(allModelsResponse.ok()).toBeTruthy();
 
     const { models } = await allModelsResponse.json();
@@ -160,7 +160,7 @@ test.describe('Hybrid UI + API tests', () => {
       VALID_USER.username,
       VALID_USER.password,
     );
-    const modelApi = new PopularModelApi(request, token);
+    const modelApi: PopularModelApi = new PopularModelApi(request, token);
 
     const allModelsResponse: APIResponse = await modelApi.getAllModels();
     expect(allModelsResponse.ok()).toBeTruthy();
