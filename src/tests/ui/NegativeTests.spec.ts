@@ -128,24 +128,24 @@ test.describe('Negative tests', () => {
       userCredentials.username,
       userCredentials.password,
     );
-    await headerComponent.isLoggedIn();
-
-    let popularModelPage: PopularModelPage = new PopularModelPage(page);
+    expect(await headerComponent.isLoggedIn()).toBeTruthy();
 
     const authApi = new AuthApi(request);
+
     const token = await authApi.login(
       userCredentials.username,
       userCredentials.password,
     );
-
     const modelApi: PopularModelApi = new PopularModelApi(request, token);
+
     const allModelsResponse: APIResponse = await modelApi.getAllModels();
     expect(allModelsResponse.ok()).toBeTruthy();
 
     const { models } = await allModelsResponse.json();
     expect(models.length).toBeGreaterThan(0);
-    let modelId = models[0].id;
 
+    let modelId: any = models[0].id;
+    let popularModelPage: PopularModelPage = new PopularModelPage(page);
     await popularModelPage.commentAndVoteByModelId(modelId);
     let successMessageLocator: Promise<Locator> =
       popularModelPage.getSuccessMessageLocator();

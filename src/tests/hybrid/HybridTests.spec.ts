@@ -156,7 +156,10 @@ test.describe('Hybrid UI + API tests', () => {
     expect(await headerComponent.isLoggedIn()).toBeTruthy();
 
     const authApi: AuthApi = new AuthApi(request);
-    const token = await authApi.login(VALID_USER.username, VALID_USER.password);
+    const token: string = await authApi.login(
+      VALID_USER.username,
+      VALID_USER.password,
+    );
     const modelApi = new PopularModelApi(request, token);
 
     const allModelsResponse: APIResponse = await modelApi.getAllModels();

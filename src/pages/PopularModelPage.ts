@@ -20,7 +20,7 @@ export class PopularModelPage {
   }
 
   async commentAndVoteByModelId(modelId: string): Promise<void> {
-    const encodedId = encodeURIComponent(modelId);
+    const encodedId: string = encodeURIComponent(modelId);
     await this.page.goto('/model/' + encodedId);
     expect(await isOnPage(this.commentInput)).toBeTruthy();
 
